@@ -1,0 +1,53 @@
+---
+# tasks file for docker
+
+  # the following was taken from https://docs.docker.com/engine/installation/linux/ubuntulinux/
+  - shell: uname -r
+    register: uname_result
+
+  #- debug: var=uname_result.stdout
+  - name: add docker repo
+    apt_repository: repo='deb https://apt.dockerproject.org/repo ubuntu-trusty main' state=present 
+  
+  - name: add docker key
+    apt_key: keyserver=hkp://p80.pool.sks-keyservers.net:80 id=58118E89F3A912897C070ADBF76221572C52609D  state=present
+
+  - name: update apt cache
+    apt: update_cache=yes
+
+  - name: install kernel for docker
+    apt: name=linux-image-extra-{{uname_result.stdout}} 
+
+  - name: install docker
+    apt: name=docker-engine 
+
+  - name: add the devops user to the docker group
+    user: user=devops groups=docker
+
+
+  # Install docker-compose
+  - name: getting uname -s
+    shell: uname -s
+    register: uname_s
+        
+  - name: getting uname -m
+    shell: uname -m
+    register: uname_m
+
+  - name: install docker-compose
+    get_url: url="https://github.com/docker/compose/releases/download/1.5.2/docker-compose-{{uname_s.stdout}}-{{uname_m.stdout}}"  dest=/usr/local/bin/docker-compose mode=0755
+
+
+    #reboot the server
+  - name: restart machine
+    shell: sleep 2 && shutdown -r now "Ansible is rebooting this server for Docker setup."
+    async: 1
+    poll: 0
+    sudo: true
+    ignore_errors: true
+
+  - name: waiting for server to come back
+    local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=300
+    sudo: false 
+
+

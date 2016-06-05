@@ -1,0 +1,23 @@
+---
+# tasks file for varnish
+  # Based on instructions on https://www.varnish-cache.org/installation/ubuntu (this was during 4.1)
+  - name: install apt-transport-https
+    apt: name=apt-transport-https  update_cache=yes
+
+  - name: add varnish repo
+    apt_repository: repo='deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.1' state=present 
+  
+  - name: add varnish key
+    apt_key: url=https://repo.varnish-cache.org/GPG-key.txt state=present
+
+  - name: install varnish 
+    apt: name=varnish update_cache=yes
+   
+  - name: Copy a custom default.vcl file.
+    copy: src=default.vcl dest=/etc/varnish/default.vcl  owner=root group=root mode=0644 
+
+  - name: Copy a custom /etc/default/varnish templated file.
+    template: src=varnish.j2 dest=/etc/default/varnish  owner=root group=root mode=0644 
+
+  - name: Restart varnish
+    service: name=varnish state=restarted 

@@ -1,0 +1,11 @@
+---
+# tasks file for nginx
+- name: install nginx mainline (formerly development) repo
+  apt_repository: repo='deb http://ppa.launchpad.net/nginx/development/ubuntu trusty main' state=present
+
+- name: Install nginx signing key
+  apt_key: keyserver=keyserver.ubuntu.com id=C300EE8C
+
+- name: install nginx
+  apt: name=nginx  update_cache=yes
+

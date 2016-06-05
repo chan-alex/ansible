@@ -1,0 +1,14 @@
+---
+# tasks file for haproxy
+  # Based on instructions on http://haproxy.debian.net/#?distribution=Ubuntu&release=trusty&version=1.6
+
+  - name: add haproxy 1.6 repo
+    apt_repository: repo='ppa:vbernat/haproxy-1.6' state=present 
+  
+
+  - name: install haproxy
+    apt: name=haproxy update_cache=yes
+
+  - name: install hatop - useful for working with haproxy
+    apt: name=hatop update_cache=yes
+

@@ -1,0 +1,46 @@
+- hosts: all
+  vars:
+  #- my_zone: 'Asia/Hong_Kong'   #Important specify the time you want here.
+
+  remote_user: root
+  sudo: yes
+  tasks:
+  - name: update apt
+    apt: update_cache=yes
+
+  - name: install ntp
+    apt: name=ntp
+
+  - name: check current timezone
+    shell: cat /etc/timezone
+    register: current_zone
+
+#  - debug: var=current_zone  
+#  - debug: var={{ timezone }}
+
+  - name: Set timezone variables
+    copy: content={{timezone}}
+          dest=/etc/timezone
+          owner=root
+          group=root
+          mode=0644
+          backup=yes
+    when: current_zone.stdout != timezone
+    notify:
+      - update timezone
+
+      
+
+  handlers:
+    - name: update timezone
+      command: dpkg-reconfigure --frontend noninteractive tzdata  
+      notify: 
+        - restart rsyslog
+
+    - name: restart rsyslog
+      service: name=rsyslog state=restarted
+      notify: 
+        - restart cron
+   
+    - name: restart cron
+      service: name=cron state=restarted

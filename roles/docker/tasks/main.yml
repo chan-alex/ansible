@@ -1,0 +1,15 @@
+
+
+  - name: Check if docker-engine is installed
+    command: dpkg-query -W 'docker-engine'
+    ignore_errors: True
+    register: deb_check
+
+
+  #- debug: var=deb_check
+
+  - name: Proceed to install docker-engine
+    include: install_docker.yml 
+    when: deb_check.rc != 0
+
+  

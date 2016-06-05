@@ -1,0 +1,24 @@
+---
+# tasks file for percona56
+  # the tasks below are based on instruction at https://www.percona.com/doc/percona-server/5.6/installation/apt_repo.html
+
+  - name: check lsb_release
+    shell: lsb_release -sc
+    register: lsb_release
+
+  - name: download percona package
+    get_url: url="https://repo.percona.com/apt/percona-release_0.1-3.{{ lsb_release.stdout }}_all.deb" 
+             dest="/root/"
+
+  - name: install percona  package
+    apt: deb="/root/percona-release_0.1-3.{{ lsb_release.stdout }}_all.deb"
+
+  - name: install mysql 
+    apt: name=percona-server-server-5.7 update_cache=yes
+
+  - name: install xtrabackup
+    apt: name=percona-xtrabackup-24  update_cache=yes
+
+  - name: install mdadm
+    apt: name=mdadm  update_cache=yes
+
